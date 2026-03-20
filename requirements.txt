@@ -1,0 +1,5 @@
+pypdf
+python-dotenv
+streamlit
+huggingface_hub
+reportlab
