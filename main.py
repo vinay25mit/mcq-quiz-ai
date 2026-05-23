@@ -271,14 +271,26 @@ Rules:
 {custom_instruction}
 """.strip()
 
-    response = llm.invoke(prompt)
-    payload = extract_json_payload(response.content)
-    questions = payload.get("questions", [])
+    last_error = None
+    for _ in range(3):
+        try:
+            response = llm.invoke(prompt)
+            payload = extract_json_payload(response.content)
+            questions = payload.get("questions", [])
 
-    if not isinstance(questions, list) or not questions:
-        raise ValueError("Model response did not contain any quiz questions.")
+            if not isinstance(questions, list) or not questions:
+                raise ValueError("Model response did not contain any quiz questions.")
 
-    return questions
+            if len(questions) < batch_count:
+                raise ValueError(
+                    f"Generated only {len(questions)} questions for a batch of {batch_count}."
+                )
+
+            return questions[:batch_count]
+        except Exception as exc:
+            last_error = exc
+
+    raise ValueError(f"Question batch generation failed: {last_error}")
 
 
 def generate_quiz_bundle(

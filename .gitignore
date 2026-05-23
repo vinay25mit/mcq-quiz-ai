@@ -1,1 +1,10 @@
 .env
+*.log
+__pycache__/
+*.py[cod]
+node_modules/
+frontend/node_modules/
+backend/node_modules/
+frontend/dist/
+backend/data/uploads/
+backend/data/users.json
