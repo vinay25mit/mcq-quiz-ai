@@ -1,10 +1,11 @@
 import fs from "node:fs/promises";
+import path from "node:path";
 
 import cors from "cors";
 import express from "express";
 import multer from "multer";
 
-import { config, DATA_DIR, UPLOADS_DIR } from "./config.js";
+import { config, DATA_DIR, FRONTEND_DIST_DIR, UPLOADS_DIR } from "./config.js";
 import { signToken, authMiddleware } from "./lib/auth.js";
 import { createUser, findUserByEmail, sanitizeUser, verifyUser } from "./lib/users.js";
 import {
@@ -150,6 +151,22 @@ app.post("/api/quiz/export", authMiddleware, async (req, res) => {
     res.send(pdfBuffer);
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+});
+
+app.use("/api", (_req, res) => {
+  res.status(404).json({ message: "API route not found." });
+});
+
+app.use(express.static(FRONTEND_DIST_DIR));
+
+app.get("*", async (_req, res, next) => {
+  const indexPath = path.join(FRONTEND_DIST_DIR, "index.html");
+  try {
+    await fs.access(indexPath);
+    res.sendFile(indexPath);
+  } catch (error) {
+    next(error);
   }
 });
 

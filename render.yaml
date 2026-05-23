@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: mcq-quiz-ai
+    runtime: node
+    plan: free
+    buildCommand: npm install --prefix backend && npm install --prefix frontend && npm run build:frontend
+    startCommand: npm run start:backend
+    healthCheckPath: /api/health
+    disk:
+      name: mcq-data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: NODE_VERSION
+        value: 22
+      - key: DATA_DIR
+        value: /var/data
+      - key: JWT_SECRET
+        generateValue: true
+      - key: HF_TOKEN
+        sync: false
+      - key: HF_CHAT_MODEL
+        value: Qwen/Qwen2.5-7B-Instruct
